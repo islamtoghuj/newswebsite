@@ -2,6 +2,40 @@
 <html lang="en">
 
 <head>
+    <script>
+        Amplify.configure({
+            Auth: {
+                // Configure your authentication settings if needed
+            },
+            API: {
+                endpoints: [
+                    {
+                        name: "jipnotification-API",
+                        endpoint: "https://s5pyorgy43.execute-api.us-east-1.amazonaws.com/default/jipnotification", // Replace with your API Gateway endpoint
+                        region: "us-east-1", // Replace with your region
+                    },
+                ],
+            },
+        });
+    
+        const handleReceiveNotifications = async () => {
+            const email = prompt("Enter your email:");
+            if (email) {
+                try {
+                    // Make a call to your API Gateway endpoint
+                    const apiResponse = await Amplify.API.post("JIPNotificationAPI", "/send-notification", {
+                        body: { email },
+                    });
+    
+                    console.log(apiResponse);
+                    alert("Notification request sent successfully!");
+                } catch (error) {
+                    console.error("Error sending notification request:", error);
+                    alert("Error sending notification request.");
+                }
+            }
+        };
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>JIP News!</title>
