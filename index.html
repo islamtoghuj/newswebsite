@@ -3,7 +3,16 @@
 
 <head>
     <script src="https://cdn.ampproject.org/rtv/6.0.10/amp-amazon-cognito-login.js"></script>
-    <script src="./App/auth.js"></script>
+    <script>
+        // Paste the content of auth.js here
+        Amplify.configure({
+            Auth: {
+                region: 'us-east-1',
+                userPoolId: 'us-east-1_CfbAoSp9z',
+                userPoolWebClientId: '8kjujm6tp2r5sat3jqpifqrig',
+            },
+        });
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>JIP News!</title>
