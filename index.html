@@ -2,9 +2,6 @@
 <html lang="en">
 
 <head>
-    <script src="https://cdn.ampproject.org/rtv/6.0.10/amp-amazon-cognito-login.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aws-amplify/4.3.2/amplify.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aws-amplify/4.3.2/amplifyAuth.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>JIP News!</title>
@@ -15,7 +12,7 @@
 <body>
     <div class="container mt-5">
         <header>
-            <h1 class="mb-4">JIP News!</h1>
+            <h1 class="mb-4">JIP News</h1>
             <p id="currentDate"></p>
         </header>
         <section class="mb-5">
@@ -23,77 +20,88 @@
             <div class="row" id="breakingNewsContainer"></div>
         </section>
 
-        <!-- Add login/logout buttons -->
-        <div>
-            <button onclick="handleLogin()" id="loginBtn">Login</button>
-            <button onclick="handleLogout()" id="logoutBtn">Logout</button>
-        </div>
+        <!-- Section for Email Subscription -->
+        <section class="mt-5">
+            <h2>Subscribe for Notifications</h2>
+            <div class="mb-3">
+                <label for="emailInput" class="form-label">Enter your email:</label>
+                <input type="email" class="form-control" id="emailInput" placeholder="example@example.com">
+            </div>
+            <button class="btn btn-primary" onclick="subscribeForNotifications()">Receive Notifications</button>
+        </section>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
     <script>
-        // Ensure Amplify is loaded before using it
-        document.addEventListener('DOMContentLoaded', function () {
-            // Initialize Amplify
-            Amplify.configure({
-                Auth: {
-                    region: 'us-east-1',
-                    userPoolId: 'us-east-1_CfbAoSp9z',
-                    userPoolWebClientId: '8kjujm6tp2r5sat3jqpifqrig',
-                },
-            });
+        const apiToken = "ZRJjRQjMVlu0ENfpVuvRiaZOrrSTA8FTKElXcWGW";
+        const currentDateElement = document.getElementById("currentDate");
+        const breakingNewsContainer = document.getElementById("breakingNewsContainer");
 
-            const checkAuthAndRedirect = async () => {
-                try {
-                    // Check if the user is authenticated
-                    const user = await Auth.currentAuthenticatedUser();
+        const fetchNews = async () => {
+            try {
+                const response = await fetch(
+                    `https://api.thenewsapi.com/v1/news/top?api_token=${apiToken}&locale=us&limit=3`
+                );
 
-                    // User is authenticated, show the news feed or redirect to another authenticated page
-                    console.log('User is authenticated:', user);
-                    // Add logic to redirect or display content for authenticated users
-
-                } catch (error) {
-                    // User is not authenticated, redirect to the login page
-                    console.error('User not authenticated. Redirecting to login page.', error);
-                    window.location.href = '/login.html'; // Replace with your login page URL
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok. Status: ${response.status}`);
                 }
-            };
 
-            const handleLogin = async () => {
-                try {
-                    // Use Amplify Auth to handle the login process
-                    const user = await Auth.signIn('username', 'password');
-                    console.log('Logged in:', user);
-                    // Add logic after successful login
-                } catch (error) {
-                    console.error('Login error:', error);
-                    // Handle login error
+                const { data } = await response.json();
+
+                console.log("Full API Response:", data);
+
+                if (data && data.length > 0) {
+                    const breakingNews = data.slice(0, 3);
+                    renderBreakingNews(breakingNews);
+                } else {
+                    throw new Error("No articles found");
                 }
-            };
+            } catch (error) {
+                console.error("Error fetching news:", error.message);
+            }
+        };
 
-            const handleLogout = async () => {
-                try {
-                    // Use Amplify Auth to handle the logout process
-                    await Auth.signOut();
-                    console.log('Logged out');
-                    // Add logic after successful logout
-                } catch (error) {
-                    console.error('Logout error:', error);
-                    // Handle logout error
-                }
-            };
+        const renderBreakingNews = (articles) => {
+            breakingNewsContainer.innerHTML = articles
+                .map(
+                    (article) => `
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <img src="${article.image || 'https://via.placeholder.com/150'}" class="card-img-top"
+                                alt="${article.title}">
+                            <div class="card-body">
+                                <h5 class="card-title">${article.title}</h5>
+                                <p class="card-text">${article.description || ''}</p>
+                                <a href="${article.url}" target="_blank" class="btn btn-primary">Read more</a>
+                            </div>
+                        </div>
+                    </div>`
+                )
+                .join("");
+        };
 
-            const fetchNews = async () => {
-                // ... Your existing fetchNews function ...
+        const getCurrentDate = () => {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return now.toLocaleDateString('en-US', options);
+        };
 
-                // Call checkAuthAndRedirect to determine whether to show news or redirect to login
-                checkAuthAndRedirect();
-            };
+        currentDateElement.textContent = getCurrentDate();
+        fetchNews();
 
-            // ... Your existing scripts ...
-        });
+        // Function to handle subscription
+        const subscribeForNotifications = () => {
+            const emailInput = document.getElementById("emailInput").value;
+            if (emailInput) {
+                // Implement logic to subscribe the user for notifications
+                alert(`Subscription request for ${emailInput} received!`);
+            } else {
+                alert("Please enter a valid email address.");
+            }
+        };
     </script>
 </body>
 
