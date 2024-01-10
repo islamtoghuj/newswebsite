@@ -3,47 +3,8 @@
 
 <head>
     <script src="https://cdn.ampproject.org/rtv/6.0.10/amp-amazon-cognito-login.js"></script>
-    <script>
-        Amplify.configure({
-            Auth: {
-                region: 'us-east-1',
-                userPoolId: 'us-east-1_CfbAoSp9z',
-                userPoolWebClientId: '8kjujm6tp2r5sat3jqpifqrig',
-            },
-        });
-
-        const handleLogin = async () => {
-        try {
-            // Prompt the user for login credentials
-            const username = prompt('Enter your username');
-            const password = prompt('Enter your password');
-
-            // Trigger the authentication process
-            const user = await Auth.signIn(username, password);
-
-            // Handle successful authentication
-            console.log('Authentication successful:', user);
-            // You can redirect the user or perform other actions upon successful login
-        } catch (error) {
-            // Handle authentication errors
-            console.error('Authentication error:', error);
-        }
-    };
-
-        const handleLogout = async () => {
-            try {
-                // Trigger the logout process
-                await Auth.signOut();
-
-                // Handle successful logout
-                console.log('Logout successful');
-                // You can redirect the user or perform other actions upon successful logout
-            } catch (error) {
-                // Handle logout errors
-                console.error('Logout error:', error);
-            }
-        };
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aws-amplify/4.3.2/amplify.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aws-amplify/4.3.2/amplifyAuth.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>JIP News!</title>
@@ -62,10 +23,10 @@
             <div class="row" id="breakingNewsContainer"></div>
         </section>
 
-        <!-- Add login and logout buttons -->
+        <!-- Add login/logout buttons -->
         <div>
-            <button onclick="handleLogin()">Login</button>
-            <button onclick="handleLogout()">Logout</button>
+            <button onclick="handleLogin()" id="loginBtn">Login</button>
+            <button onclick="handleLogout()" id="logoutBtn">Logout</button>
         </div>
     </div>
 
@@ -73,6 +34,62 @@
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
     <script>
+        // Initialize Amplify
+        Amplify.configure({
+            Auth: {
+                region: 'us-east-1',
+                userPoolId: 'us-east-1_CfbAoSp9z',
+                userPoolWebClientId: '8kjujm6tp2r5sat3jqpifqrig',
+            },
+        });
+
+        const checkAuthAndRedirect = async () => {
+            try {
+                // Check if the user is authenticated
+                const user = await Auth.currentAuthenticatedUser();
+
+                // User is authenticated, show the news feed or redirect to another authenticated page
+                console.log('User is authenticated:', user);
+                // Add logic to redirect or display content for authenticated users
+
+            } catch (error) {
+                // User is not authenticated, redirect to the login page
+                console.error('User not authenticated. Redirecting to login page.', error);
+                window.location.href = '/login.html'; // Replace with your login page URL
+            }
+        };
+
+        const handleLogin = async () => {
+            try {
+                // Use Amplify Auth to handle the login process
+                const user = await Auth.signIn('username', 'password');
+                console.log('Logged in:', user);
+                // Add logic after successful login
+            } catch (error) {
+                console.error('Login error:', error);
+                // Handle login error
+            }
+        };
+
+        const handleLogout = async () => {
+            try {
+                // Use Amplify Auth to handle the logout process
+                await Auth.signOut();
+                console.log('Logged out');
+                // Add logic after successful logout
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Handle logout error
+            }
+        };
+
+        const fetchNews = async () => {
+            // ... Your existing fetchNews function ...
+
+            // Call checkAuthAndRedirect to determine whether to show news or redirect to login
+            checkAuthAndRedirect();
+        };
+
         // ... Your existing scripts ...
     </script>
 </body>
