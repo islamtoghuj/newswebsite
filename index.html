@@ -20,14 +20,15 @@
             <div class="row" id="breakingNewsContainer"></div>
         </section>
 
-        <!-- Add a form for the user to enter their email -->
-        <form id="notificationForm">
+        <!-- Section for Email Subscription -->
+        <section class="mt-5">
+            <h2>Subscribe for Notifications</h2>
             <div class="mb-3">
                 <label for="emailInput" class="form-label">Enter your email:</label>
-                <input type="email" class="form-control" id="emailInput" required>
+                <input type="email" class="form-control" id="emailInput" placeholder="example@example.com">
             </div>
-            <button type="button" class="btn btn-primary" onclick="receiveNotifications()">Receive Notifications</button>
-        </form>
+            <button class="btn btn-primary" onclick="subscribeForNotifications()">Receive Notifications</button>
+        </section>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
@@ -39,44 +40,66 @@
         const breakingNewsContainer = document.getElementById("breakingNewsContainer");
 
         const fetchNews = async () => {
-            // Function to fetch news remains the same
-            // ...
+            try {
+                const response = await fetch(
+                    `https://api.thenewsapi.com/v1/news/top?api_token=${apiToken}&locale=us&limit=3`
+                );
+
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok. Status: ${response.status}`);
+                }
+
+                const { data } = await response.json();
+
+                console.log("Full API Response:", data);
+
+                if (data && data.length > 0) {
+                    const breakingNews = data.slice(0, 3);
+                    renderBreakingNews(breakingNews);
+                } else {
+                    throw new Error("No articles found");
+                }
+            } catch (error) {
+                console.error("Error fetching news:", error.message);
+            }
         };
 
         const renderBreakingNews = (articles) => {
-            // Function to render news remains the same
-            // ...
+            breakingNewsContainer.innerHTML = articles
+                .map(
+                    (article) => `
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <img src="${article.image || 'https://via.placeholder.com/150'}" class="card-img-top"
+                                alt="${article.title}">
+                            <div class="card-body">
+                                <h5 class="card-title">${article.title}</h5>
+                                <p class="card-text">${article.description || ''}</p>
+                                <a href="${article.url}" target="_blank" class="btn btn-primary">Read more</a>
+                            </div>
+                        </div>
+                    </div>`
+                )
+                .join("");
         };
 
         const getCurrentDate = () => {
-            // Function to get current date remains the same
-            // ...
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return now.toLocaleDateString('en-US', options);
         };
 
         currentDateElement.textContent = getCurrentDate();
         fetchNews();
 
-        // Function to handle receiving notifications
-        const receiveNotifications = async () => {
-            const userEmail = document.getElementById("emailInput").value;
-
-            try {
-                // Make an API request to your endpoint
-                const response = await fetch("https://s5pyorgy43.execute-api.us-east-1.amazonaws.com/default/jipnotification", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        email: userEmail,
-                    }),
-                });
-
-                console.log("API Response:", response);
-                alert("Notification request sent successfully!");
-            } catch (error) {
-                console.error("Error sending notification request:", error);
-                alert("Error sending notification request. Please try again.");
+        // Function to handle subscription
+        const subscribeForNotifications = () => {
+            const emailInput = document.getElementById("emailInput").value;
+            if (emailInput) {
+                // Implement logic to subscribe the user for notifications
+                alert(`Subscription request for ${emailInput} received!`);
+            } else {
+                alert("Please enter a valid email address.");
             }
         };
     </script>
