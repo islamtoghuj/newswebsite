@@ -48,6 +48,15 @@
                     if (data && data.length > 0) {
                         const breakingNews = data.slice(0, 3);
                         renderBreakingNews(breakingNews);
+
+                        // Trigger Lambda function via API Gateway
+                        await fetch('YOUR_API_GATEWAY_ENDPOINT', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({}),
+                        });
                     } else {
                         throw new Error("No articles found");
                     }
